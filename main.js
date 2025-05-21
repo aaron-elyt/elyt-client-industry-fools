@@ -523,5 +523,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     productPage.init();
   }
 });
-
-</script>
