@@ -1,15 +1,28 @@
 import { minify } from 'terser';
-import { readdir, readFile, writeFile } from 'fs/promises';
+import { readdir, readFile, writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
 
-const files = (await readdir('.')).filter(f => f.endsWith('.js') && !f.endsWith('.min.js') && f !== 'build.js');
+const srcDir = 'src';
+const distDir = 'dist';
+
+// Ensure dist directory exists
+try {
+  await mkdir(distDir, { recursive: true });
+} catch (err) {
+  // Directory already exists or other error, continue
+}
+
+const files = (await readdir(srcDir)).filter(f => f.endsWith('.js') && !f.endsWith('.min.js'));
 
 for (const file of files) {
-  const code = await readFile(file, 'utf8');
+  const srcPath = join(srcDir, file);
+  const code = await readFile(srcPath, 'utf8');
   const output = await minify(code, {
     format: { comments: false },
     compress: { drop_console: true, dead_code: true }
   });
   const outName = file.replace(/\.js$/, '.min.js');
-  await writeFile(outName, output.code, 'utf8');
-  console.log(`✔  ${outName}`);
+  const distPath = join(distDir, outName);
+  await writeFile(distPath, output.code, 'utf8');
+  console.log(`✔  ${srcPath} → ${distPath}`);
 } 
