@@ -1,5 +1,5 @@
 // Shopify integration for Webflow - Common Code
-const STOREFRONT_ACCESS_TOKEN = 'e0f50e63d937029efed49ebb8bda6af4';
+const STOREFRONT_ACCESS_TOKEN = '72ec6c6d87557451f71cce38ac389795';
 const SHOPIFY_DOMAIN = 'a6pzx0-qj.myshopify.com';
 const SHOPIFY_API_VERSION = '2025-01';
 
