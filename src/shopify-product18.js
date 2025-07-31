@@ -11,27 +11,27 @@ class ProductLightbox {
       galleryContainerSelector: '.product-header4_image-grid',
       ...options
     };
-    
+
     this.images = [];
     this.fancyboxInstance = null;
-    
+
     // Bind methods
     this.initFancybox = this.initFancybox.bind(this);
     this.updateImages = this.updateImages.bind(this);
     this.createGallery = this.createGallery.bind(this);
     this.openGallery = this.openGallery.bind(this);
-    
+
     // Initialize Fancybox (assume it's already loaded)
     this.initFancybox();
   }
-  
+
   initFancybox() {
     // Wait for Fancybox to be available
     if (typeof Fancybox === 'undefined') {
       setTimeout(this.initFancybox, 100);
       return;
     }
-    
+
     // Configure Fancybox defaults
     Fancybox.defaults = {
       ...Fancybox.defaults,
@@ -45,10 +45,10 @@ class ProductLightbox {
         transition: 'slide',
       }
     };
-    
+
     // Remove any existing Webflow lightbox functionality
     this.removeWebflowLightbox();
-    
+
     // Setup main image click handler
     const mainImage = document.querySelector(this.options.mainImageSelector);
     if (mainImage) {
@@ -57,23 +57,23 @@ class ProductLightbox {
         this.openGallery(0);
       });
     }
-    
+
     // For option 1:
     this.createMobileSlideshow();
   }
-  
+
   removeWebflowLightbox() {
     // Remove lightbox classes from links
     document.querySelectorAll('.w-lightbox').forEach(el => {
       el.classList.remove('w-lightbox');
-      
+
       // Make sure clicks don't trigger default behavior
       el.addEventListener('click', (e) => {
         if (el.closest('a')) {
           e.preventDefault();
         }
       });
-      
+
       // Remove any w-json scripts
       const wJson = el.querySelector('.w-json');
       if (wJson) {
@@ -81,20 +81,20 @@ class ProductLightbox {
       }
     });
   }
-  
+
   updateImages(images) {
     this.images = images.map(img => ({
       src: img.node.url,
       thumb: img.node.url,
       alt: img.node.altText || 'Product image'
     }));
-    
+
     return this.images;
   }
-  
+
   createGallery() {
     if (!this.images || this.images.length === 0) return;
-    
+
     // Setup main product image
     const mainImage = document.querySelector(this.options.mainImageSelector);
     if (mainImage) {
@@ -102,31 +102,31 @@ class ProductLightbox {
       mainImageWrapper.setAttribute('data-fancybox', 'product-gallery');
       mainImageWrapper.setAttribute('data-src', this.images[0].src);
       mainImageWrapper.style.cursor = 'pointer';
-      
+
       // Remove any href that might be there from Webflow
       if (mainImageWrapper.tagName === 'A') {
         mainImageWrapper.removeAttribute('href');
       }
     }
-    
+
     // Setup thumbnail images
     this.options.thumbnailSelectors.forEach((selector, index) => {
       // Calculate imgIndex to avoid duplicating the main image
       const imgIndex = index + 1;
       if (imgIndex >= this.images.length) return;
-      
+
       const thumbnail = document.querySelector(selector);
       if (thumbnail) {
         const thumbWrapper = thumbnail.closest('a') || thumbnail.parentNode;
         thumbWrapper.setAttribute('data-fancybox', 'product-gallery');
         thumbWrapper.setAttribute('data-src', this.images[imgIndex].src);
         thumbWrapper.style.cursor = 'pointer';
-        
+
         // Remove any href that might be there from Webflow
         if (thumbWrapper.tagName === 'A') {
           thumbWrapper.removeAttribute('href');
         }
-        
+
         // Add click handler to open gallery at this image
         thumbWrapper.addEventListener('click', (e) => {
           e.preventDefault();
@@ -135,27 +135,27 @@ class ProductLightbox {
       }
     });
   }
-  
+
   openGallery(index = 0) {
     if (!this.images || this.images.length === 0) return;
-    
+
     Fancybox.show(this.images, {
       startIndex: index
     });
   }
-  
+
   createMobileSlideshow() {
     // Only create slideshow on mobile devices
     if (window.innerWidth > 767) return;
-    
+
     const container = document.querySelector(this.options.galleryContainerSelector);
     if (!container || !this.images.length) return;
-    
+
     // Create mobile slideshow
     const slideshow = document.createElement('div');
     slideshow.className = 'mobile-product-slideshow';
-    
-    
+
+
     // Create slides
     this.images.forEach(image => {
       const slide = document.createElement('div');
@@ -167,7 +167,7 @@ class ProductLightbox {
       slide.appendChild(img);
       slideshow.appendChild(slide);
     });
-    
+
     // Insert slideshow before the original image grid
     container.parentNode.insertBefore(slideshow, container);
   }
@@ -201,14 +201,14 @@ class ProductPage {
       el.innerHTML = this.product.descriptionHtml;
       el.classList.remove('invisible-before-load');
     });
-    
+
     const images = this.product.images.edges;
-    
+
     // Use the Fancybox lightbox if available
     if (window.productLightbox && images.length > 0) {
       // Update the images in the lightbox
       window.productLightbox.updateImages(images);
-      
+
       // Setup the main product image
       safeDom('#prod-img-main', el => {
         if (images[0]?.node.url) {
@@ -220,7 +220,7 @@ class ProductPage {
         }
         el.classList.remove('invisible-before-load');
       });
-      
+
       // Setup thumbnail images
       ['prod-img-1', 'prod-img-2', 'prod-img-3'].forEach((id, index) => {
         // Calculate imgIndex to avoid duplicating the main image
@@ -236,7 +236,7 @@ class ProductPage {
           el.classList.remove('invisible-before-load');
         });
       });
-      
+
       // Initialize the gallery
       window.productLightbox.createGallery();
     } else {
@@ -252,7 +252,7 @@ class ProductPage {
           }
           el.classList.remove('invisible-before-load');
         });
-        
+
         ['prod-img-1', 'prod-img-2', 'prod-img-3'].forEach((id, index) => {
           // Calculate imgIndex to avoid duplicating the main image
           const imgIndex = index + 1;
@@ -279,7 +279,7 @@ class ProductPage {
         });
       }
     }
-    
+
     this.renderVariantSelect();
     this.updateSelectedVariant();
     safeDom('#prod-price', el => el.classList.remove('invisible-before-load'));
@@ -344,14 +344,14 @@ class ProductPage {
           priceEl.parentNode.insertBefore(warningEl, priceEl.nextSibling);
         }
       }
-      if (warningEl) {
-        if (typeof qty === 'number' && qty > 0 && qty < 10) {
-          warningEl.textContent = `Only ${qty} left in stock!`;
-          warningEl.style.display = 'flex';
-        } else {
-          warningEl.style.display = 'none';
-        }
-      }
+      // if (warningEl) {
+      //   if (typeof qty === 'number' && qty > 0 && qty < 10) {
+      //     warningEl.textContent = `Only ${qty} left in stock!`;
+      //     warningEl.style.display = 'flex';
+      //   } else {
+      //     warningEl.style.display = 'none';
+      //   }
+      // }
     }
   }
 
@@ -361,10 +361,10 @@ class ProductPage {
       if (!button.dataset.originalText) {
         button.dataset.originalText = 'Add to Cart';
       }
-      
+
       // Ensure the button displays the original text on load
       button.textContent = button.dataset.originalText;
-      
+
       button.addEventListener('click', async () => {
         if (!this.selectedVariant) return;
         const quantityInput = $('#qty');
@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if ($('#product-embed')) {
     // Initialize ProductLightbox if Fancybox is available
     window.productLightbox = new ProductLightbox();
-    
+
     // Initialize the product page (uses the global shopifyClient and shopifyCart)
     if (window.shopifyClient && window.shopifyCart) {
       const productPage = new ProductPage(window.shopifyClient, window.shopifyCart);
